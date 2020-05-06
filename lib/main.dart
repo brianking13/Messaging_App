@@ -33,9 +33,17 @@ class _HomeState extends State<Home> {
       Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          FlatButton.icon(onPressed: (){setState(() {
-              setCharacter('C');
-          });}, icon: Icon(Icons.keyboard, color: Colors.white70,), label: Text("Touch",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              FlatButton.icon(onPressed: (){setState(() {
+                setCharacter('A');
+              });}, icon: Icon(Icons.keyboard, color: Colors.white70,), label: Text("A",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
+              FlatButton.icon(onPressed: (){setState(() {
+                  setCharacter('B');
+              });}, icon: Icon(Icons.keyboard, color: Colors.white70,), label: Text("B",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
+            ],
+          ),
           SizedBox(height: 20,),
           Container(
             color: Colors.redAccent,
