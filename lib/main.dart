@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+//https://www.woolha.com/tutorials/flutter-create-custom-icon  use this to import characters as icons
+// directory for git C:/Users/bking/Documents/Programming/Dart/AndroidStudio/messaging_app
 void main() => runApp(MaterialApp(
   initialRoute: '/home',
   routes: {
@@ -26,7 +27,9 @@ class _HomeState extends State<Home> {
   void send(){
     for (var i = 0; i <= characters.length-1; i++){
       print(translate(characters[i].toString()));
-  }}
+  }
+    characters = [];
+  }
 
   //translate from icondata to text
   translate(x){
@@ -90,10 +93,26 @@ class _HomeState extends State<Home> {
                 Expanded(
                   child: Container(
                     color: Colors.white,
-                    child: ListView.builder(scrollDirection: Axis.horizontal,itemCount: characters.length,itemBuilder:(context, index){
-                      return Padding(
-                        padding: EdgeInsets.all(2.0),
-                        child: Icon(characters[characters.length-index-1]), //input from right to left
+                    child: ListView.builder(scrollDirection: Axis.vertical,itemCount: (characters.length~/10)+1,itemBuilder:(context, index) {
+                      print(characters.length~/10);
+//                      return Text("Hello World", style: TextStyle(color: Colors.black),);
+                      return Column(
+                        children: <Widget>[
+                          Container(
+                            height:40,
+                            color: Colors.redAccent,
+                            child: ListView.builder(scrollDirection: Axis.horizontal,
+                                reverse: true,
+                                itemCount: characters.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: EdgeInsets.all(2.0),
+                                    child: Icon(characters[characters.length - index -
+                                        1]), //input from right to left
+                                  );
+                                }),
+                          ),
+                        ],
                       );
                     }),
                   ),
