@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 //https://www.woolha.com/tutorials/flutter-create-custom-icon  use this to import characters as icons
 // directory for git C:/Users/bking/Documents/Programming/Dart/AndroidStudio/messaging_app
+
+
 void main() => runApp(MaterialApp(
   initialRoute: '/home',
   routes: {
@@ -15,12 +18,19 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List <IconData> characters = [];
+  List output = [[]];
 
-  void setCharacter(input){
+  void setCharacter(input) {
     characters.add(input);
+    output[output.length-1].add(input); // ads input character to this new list
+    if ((characters.length) % 11 == 0) {output.add([]);} //creates a new empty list inside outputs for every set of 11 characters
+
+
+
   }
 
   void clear(){
+    output = [[]];
     characters = [];
   }
 
@@ -29,6 +39,7 @@ class _HomeState extends State<Home> {
       print(translate(characters[i].toString()));
   }
     characters = [];
+    output = [[]];
   }
 
   //translate from icondata to text
@@ -51,6 +62,49 @@ class _HomeState extends State<Home> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
 
+
+
+
+          //texting box
+          Container(
+            color: Colors.redAccent,
+            height: data.size.height * .3,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: Container(
+                    color: Colors.white,
+                    child: ListView.builder(scrollDirection: Axis.vertical,itemCount: output.length,itemBuilder:(context, index1) {
+                      return
+                        Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(data.size.width*.2,0,20,0),
+                              child: Container(
+                                height:40,
+                                color: Colors.redAccent,
+                                child: ListView.builder(scrollDirection: Axis.horizontal,
+                                    reverse: true,
+                                    itemCount: output[index1].length,
+                                    itemBuilder: (context, index2) {
+                                      return Padding(
+                                        padding: EdgeInsets.all(2.0),
+                                        child: Icon(characters[index2]), //input from right to left
+                                      );
+                                    }),
+                              ),
+                            ),
+                          ],
+                        );
+                    }),
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 20,),
           // First row of buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +113,7 @@ class _HomeState extends State<Home> {
                 setCharacter(Icons.arrow_downward);
               });}, icon: Icon(Icons.arrow_downward, color: Colors.white70,), label: Text("Down",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
               FlatButton.icon(onPressed: (){setState(() {
-                  setCharacter(Icons.arrow_upward);
+                setCharacter(Icons.arrow_upward);
               });}, icon: Icon(Icons.arrow_upward, color: Colors.white70,), label: Text("Up",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
               FlatButton.icon(onPressed: (){setState(() {
                 setCharacter(Icons.arrow_back);
@@ -82,46 +136,10 @@ class _HomeState extends State<Home> {
               });}, icon: Icon(Icons.send, color: Colors.white70,), label: Text("Send",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
             ],
           ),
-          SizedBox(height: 20,),
-          Container(
-            color: Colors.redAccent,
-            height: data.size.height * .3,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                    color: Colors.white,
-                    child: ListView.builder(scrollDirection: Axis.vertical,itemCount: (characters.length~/10)+1,itemBuilder:(context, index) {
-                      print(characters.length~/10);
-//                      return Text("Hello World", style: TextStyle(color: Colors.black),);
-                      return Column(
-                        children: <Widget>[
-                          Container(
-                            height:40,
-                            color: Colors.redAccent,
-                            child: ListView.builder(scrollDirection: Axis.horizontal,
-                                reverse: true,
-                                itemCount: characters.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: EdgeInsets.all(2.0),
-                                    child: Icon(characters[characters.length - index -
-                                        1]), //input from right to left
-                                  );
-                                }),
-                          ),
-                        ],
-                      );
-                    }),
-                  ),
-                )
-              ],
-            ),
-          ),
         ],
       )
     );
   }
 }
+
+
