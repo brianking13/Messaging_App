@@ -1,15 +1,29 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:messagingapp/Home/loading.dart';
+import 'package:messagingapp/Models/constants.dart';
+import 'package:messagingapp/Models/user.dart';
+import 'package:messagingapp/Services/auth.dart';
+import 'dart:async';
 
+class HomeTime extends StatefulWidget {
 
-class Home extends StatefulWidget {
+  final User user;
+  const HomeTime({Key key, this.user});
+
   @override
-  _HomeState createState() => _HomeState();
+  _HomeTimeState createState() => _HomeTimeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeTimeState extends State<HomeTime> {
   List <IconData> characters = [];
   List output = [[]];
+  final AuthService _auth = AuthService();
+  ScrollController _controller = ScrollController();
+  ScrollController scrollcontrol = ScrollController();
+  final Firestore _firestore = Firestore.instance;
 
 
 //---------------Useful Functions---------------------------------------------
@@ -17,7 +31,7 @@ class _HomeState extends State<Home> {
   void setCharacter(input) {
     characters.add(input);
     output[output.length-1].add(input); // ads input character to this new list
-    if ((characters.length) % 11 == 0) {output.add([]);} //creates a new empty list inside outputs for every set of 11 characters
+    if ((characters.length) % 18 == 0) {output.add([]);} //creates a new empty list inside outputs for every set of 11 characters
   }
 
   void clear(){
@@ -25,10 +39,15 @@ class _HomeState extends State<Home> {
     characters = [];
   }
 
-  void send(){
+  Future<void> send() async{
     for (var i = 0; i <= characters.length-1; i++){
       print(translate(characters[i].toString()));
     }
+    _firestore.collection('messages').add({
+      'from': widget.user.email,    // todo: put real email =>  widget.user.email
+      'text': characters.toString(),
+    });
+    scrollcontrol.animateTo(scrollcontrol.position.maxScrollExtent, curve: Curves.easeOut, duration: const Duration(milliseconds: 300));
     characters = [];
     output = [[]];
   }
@@ -48,52 +67,96 @@ class _HomeState extends State<Home> {
 
 
   @override
+
   Widget build(BuildContext context) {
+    Timer(Duration(milliseconds: 100), () => _controller.jumpTo(_controller.position.maxScrollExtent));
     final data = MediaQuery.of(context);
     return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blueGrey[900],
+        appBar: AppBar(
+          title: Text("MESSΔGE", style: TextStyle(color: Colors.white70),),
+          backgroundColor: Colors.blueGrey[800],
+          elevation: 2.0,
+          actions: <Widget>[
+            FlatButton.icon(icon: Icon(Icons.person_outline, color: Colors.white70,), label: Text("Logout", style: TextStyle(color: Colors.white70),),
+              onPressed: () async {
+                await _auth.signOut();
+              }, )
+          ],
+        ),
         body:
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
 
-            //texting box
-            Container(
-              color: Colors.redAccent,
-              height: data.size.height * .3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      color: Colors.white,
-                      child: ListView.builder(scrollDirection: Axis.vertical,itemCount: output.length,itemBuilder:(context, index1) {
-                        return
-                          Column(
+            //texting box (should put in own widget later)
+            Expanded(
+              child: Container(
+                color: Colors.red,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+
+                    //show older messages
+                    Expanded(
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: _firestore.collection('messages').snapshots(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData)
+                            return Loading();
+                              List<DocumentSnapshot> docs = snapshot.data.documents;
+                              List<Widget> messages = docs.map((doc)=>OldMessages(
+                                from: doc.data['from'],
+                                text: doc.data['text'],
+                                me: widget.user.email == doc.data['from'],
+                              )).toList();
+
+                          return ListView(
+                            controller: scrollcontrol,
                             children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(data.size.width*.2,0,20,0),
-                                child: Container(
-                                  height:40,
-                                  color: Colors.redAccent,
-                                  child: ListView.builder(scrollDirection: Axis.horizontal,
-                                      reverse: true,
-                                      itemCount: output[index1].length,
-                                      itemBuilder: (context, index2) {
-                                        return Padding(
-                                          padding: EdgeInsets.all(2.0),
-                                          child: Icon(characters[index2]), //input from right to left
-                                        );
-                                      }),
-                                ),
-                              ),
+                              ... messages,
                             ],
                           );
-                      }),
+                        },
+                      ),
                     ),
-                  )
-                ],
+
+                    //inputting message
+                    Container(
+                      height: data.size.height*.2,
+                      color: Colors.white70,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                        child: Container(
+                          color: Colors.cyan[600],
+                          child: ListView.builder(controller: _controller,scrollDirection: Axis.vertical, itemCount: output.length,itemBuilder:(context, index1) {
+                            return
+                              Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(20,0,20,0),
+                                    child: Container(
+                                      height:35,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: ListView.builder(scrollDirection: Axis.horizontal,
+                                            reverse: true,
+                                            itemCount: output[index1].length,
+                                            itemBuilder: (context, index2) {
+                                              return Icon(output[index1][index2], size: 17,);
+                                            }),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                          }),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
             SizedBox(height: 20,),
