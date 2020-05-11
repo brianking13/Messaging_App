@@ -30,7 +30,7 @@ class _HomeTimeState extends State<HomeTime> {
 
   void setCharacter(input) {
     characters.add(input);
-    output[output.length-1].add(input); // ads input character to this new list
+    output[output.length-1].add(input.codePoint); // ads input character to this new list
     if ((characters.length) % 18 == 0) {output.add([]);} //creates a new empty list inside outputs for every set of 11 characters
   }
 
@@ -40,12 +40,13 @@ class _HomeTimeState extends State<HomeTime> {
   }
 
   Future<void> send() async{
-    for (var i = 0; i <= characters.length-1; i++){
-      print(translate(characters[i].toString()));
-    }
+//    for (var i = 0; i <= characters.length-1; i++){
+//      print(translate(characters[i].toString()));
+//    }
+    print(output);
     _firestore.collection('messages').add({
-      'from': widget.user.email,    // todo: put real email =>  widget.user.email
-      'text': characters.toString(),
+      'from': widget.user.email,
+      'characters': output.toString(),
     });
     scrollcontrol.animateTo(scrollcontrol.position.maxScrollExtent, curve: Curves.easeOut, duration: const Duration(milliseconds: 300));
     characters = [];
@@ -92,7 +93,7 @@ class _HomeTimeState extends State<HomeTime> {
             //texting box (should put in own widget later)
             Expanded(
               child: Container(
-                color: Colors.red,
+                color: Colors.blueGrey[900],
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -108,7 +109,7 @@ class _HomeTimeState extends State<HomeTime> {
                               List<DocumentSnapshot> docs = snapshot.data.documents;
                               List<Widget> messages = docs.map((doc)=>OldMessages(
                                 from: doc.data['from'],
-                                text: doc.data['text'],
+                                characters: doc.data['characters'],
                                 me: widget.user.email == doc.data['from'],
                               )).toList();
 
@@ -125,11 +126,12 @@ class _HomeTimeState extends State<HomeTime> {
                     //inputting message
                     Container(
                       height: data.size.height*.2,
-                      color: Colors.white70,
+                      color: Colors.blueGrey[800],
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                        child: Container(
+                        child: Material(
                           color: Colors.cyan[600],
+                          elevation: 2.0,
                           child: ListView.builder(controller: _controller,scrollDirection: Axis.vertical, itemCount: output.length,itemBuilder:(context, index1) {
                             return
                               Column(
@@ -144,7 +146,7 @@ class _HomeTimeState extends State<HomeTime> {
                                             reverse: true,
                                             itemCount: output[index1].length,
                                             itemBuilder: (context, index2) {
-                                              return Icon(output[index1][index2], size: 17,);
+                                           return Icon(IconData(output[index1][index2], fontFamily: 'MaterialIcons'), size: 17,);
                                             }),
                                       ),
                                     ),
@@ -159,37 +161,43 @@ class _HomeTimeState extends State<HomeTime> {
                 ),
               ),
             ),
-            SizedBox(height: 20,),
+
             // First row of buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                FlatButton.icon(onPressed: (){setState(() {
-                  setCharacter(Icons.arrow_downward);
-                });}, icon: Icon(Icons.arrow_downward, color: Colors.white70,), label: Text("Down",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
-                FlatButton.icon(onPressed: (){setState(() {
-                  setCharacter(Icons.arrow_upward);
-                });}, icon: Icon(Icons.arrow_upward, color: Colors.white70,), label: Text("Up",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
-                FlatButton.icon(onPressed: (){setState(() {
-                  setCharacter(Icons.arrow_back);
-                });}, icon: Icon(Icons.arrow_back, color: Colors.white70,), label: Text("Left",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
-                FlatButton.icon(onPressed: (){setState(() {
-                  setCharacter(Icons.arrow_forward);
-                });}, icon: Icon(Icons.arrow_forward, color: Colors.white70,), label: Text("Right",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
-              ],
+            Container(
+              color: Colors.blueGrey[800],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton.icon(onPressed: (){setState(() {
+                    setCharacter(Icons.arrow_downward);
+                  });}, icon: Icon(Icons.arrow_downward, color: Colors.white70,), label: Text("Down",style: TextStyle(color: Colors.white70),), splashColor: Colors.cyan[600],),
+                  FlatButton.icon(onPressed: (){setState(() {
+                    setCharacter(Icons.arrow_upward);
+                  });}, icon: Icon(Icons.arrow_upward, color: Colors.white70,), label: Text("Up",style: TextStyle(color: Colors.white70),), splashColor: Colors.cyan[600],),
+                  FlatButton.icon(onPressed: (){setState(() {
+                    setCharacter(Icons.arrow_back);
+                  });}, icon: Icon(Icons.arrow_back, color: Colors.white70,), label: Text("Left",style: TextStyle(color: Colors.white70),), splashColor: Colors.cyan[600],),
+                  FlatButton.icon(onPressed: (){setState(() {
+                    setCharacter(Icons.arrow_forward);
+                  });}, icon: Icon(Icons.arrow_forward, color: Colors.white70,), label: Text("Right",style: TextStyle(color: Colors.white70),), splashColor: Colors.cyan[600],),
+                ],
+              ),
             ),
 
             // Second row of buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                FlatButton.icon(onPressed: (){setState(() {
-                  clear();
-                });}, icon: Icon(Icons.clear, color: Colors.white70,), label: Text("Clear",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
-                FlatButton.icon(onPressed: (){setState(() {
-                  send();
-                });}, icon: Icon(Icons.send, color: Colors.white70,), label: Text("Send",style: TextStyle(color: Colors.white70),), splashColor: Colors.redAccent,),
-              ],
+            Container(
+              color: Colors.blueGrey[800],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton.icon(onPressed: (){setState(() {
+                    clear();
+                  });}, icon: Icon(Icons.clear, color: Colors.white70,), label: Text("Clear",style: TextStyle(color: Colors.white70),), splashColor: Colors.cyan[600],),
+                  FlatButton.icon(onPressed: (){setState(() {
+                    send();
+                  });}, icon: Icon(Icons.send, color: Colors.white70,), label: Text("Send",style: TextStyle(color: Colors.white70),), splashColor: Colors.cyan[600],),
+                ],
+              ),
             ),
           ],
         )
