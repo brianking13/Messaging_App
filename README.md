@@ -1,16 +1,5 @@
-# messagingapp
+Needs: updated keyboard with icon pack for alphabet
 
-Text using personal language
+Description: Messaging app with personalized keyboard. Used for communication in self-fabricated language using personal alphabet.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+App utilized Google Firebase with Firestore as database.
